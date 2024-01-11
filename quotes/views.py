@@ -3,20 +3,55 @@ from .models import Stock
 from .forms import StockForm
 from django.contrib import messages
 
+
+
 def home(request):
 	import requests
 	import json
 
+	global long_name
+	global price
+	global open_price
+	global close_price
+	global market_cap
+	global fiftytwowkhigh
+	global fiftytwowklow
+
+	def market_cap():
+		if api["price"]["marketCap"] == {}:
+			return(0)
+		else:
+			market_cap = api["price"]["marketCap"]["raw"]
+			market_cap = "{:,.0f}".format(market_cap)
+			return(market_cap)
+
+
+
 	if request.method == 'POST':
 		ticker = request.POST['ticker']
-		api_request = requests.get("https://api.iex.cloud/v1/data/core/quote/" + ticker + "?token=pk_48c9b1468b6a4ffebf19bd5fef7e87a2")
+
+		url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary"
+
+		querystring = {"symbol":ticker,"region":"au"}
+
+		headers = {
+			"X-RapidAPI-Key": "6ca0d26861msh72de52afa5b260ap1996c3jsn61aa37f0a35f",
+			"X-RapidAPI-Host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+		}
+
+
+		api_request = requests.get(url, headers=headers, params=querystring)
+		#api_request = requests.get("https://api.iex.cloud/v1/data/core/quote/" + ticker + "?token=pk_48c9b1468b6a4ffebf19bd5fef7e87a2")
 		#api_request = requests.get("https://cloud.iexapis.com/stable/stock/aapl/quote?token=pk_48c9b1468b6a4ffebf19bd5fef7e87a2")
 
 		try:
 			api = json.loads(api_request.content)
+			market_cap = market_cap()
+
+
 		except Exception as e:
 			api = "Error..."
-		return render(request, 'home.html', {'api': api})
+		return render(request, 'home.html', {'api': api, 'market_cap': market_cap })
 
 
 	else:
@@ -34,6 +69,17 @@ def add_stock(request):
 	import requests
 	import json
 
+	
+
+	def market_cap():
+		if api["price"]["marketCap"] == {}:
+			return(0)
+		else:
+			market_cap = api["price"]["marketCap"]["raw"]
+			market_cap = "{:,.0f}".format(market_cap)
+			return(market_cap)
+
+
 	if request.method == 'POST':
 		form = StockForm(request.POST or None)
 
@@ -45,15 +91,32 @@ def add_stock(request):
 	else:
 		ticker = Stock.objects.all()
 		output = []
+		
 
+		
 		for ticker_item in ticker:
 
-			api_request = requests.get("https://api.iex.cloud/v1/data/core/quote/" + str(ticker_item) + "?token=pk_48c9b1468b6a4ffebf19bd5fef7e87a2")
-			#api_request = requests.get("https://cloud.iexapis.com/stable/stock/aapl/quote?token=pk_48c9b1468b6a4ffebf19bd5fef7e87a2")
+			url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-summary"
+
+			querystring = {"symbol":ticker_item,"region":"au"}
+
+			headers = {
+			"X-RapidAPI-Key": "6ca0d26861msh72de52afa5b260ap1996c3jsn61aa37f0a35f",
+			"X-RapidAPI-Host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+			}
+
+
+			api_request = requests.get(url, headers=headers, params=querystring)
 
 			try:
 				api = json.loads(api_request.content)
+				api['price']['marketCap']['raw'] = market_cap()
+				#market_cap = market_cap()
 				output.append(api)
+				
+
+
+				
 			except Exception as e:
 				api = "Error..."
 

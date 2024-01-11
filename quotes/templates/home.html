@@ -11,28 +11,33 @@
 		please try again...
 	{% else %}
 	
-		{% for data in api %}
+		
 
-			<h1>{{data.companyName}}</h1><br/>
-			
-			Price: ${{ data.latestPrice }}<br/>
-			Previous Close: {{ data.previousClose }}<br/>
-			Market Cap: {{ data.marketCap }}<br/>
-			YTD Change: {{ data.ytdChange }}<br/>
-			52Wk High:{{ data.week52High }}<br/>
-			52Wk Low: {{ data.week52Low }}<br/>
+		
 
-		<!--
-			
-			{% for key, value in data.items %}
-				{{key}}: {{value}}<br/>
-				
-			{% endfor %}
+		
 
-		-->
-				
-
+		{% for key, value in api.price.items %}
+			{{ key }}: {{ value}} <br/>
 		{% endfor %}
+
+		
+		
+		
+
+		<h1>{{ api.price.longName }}</h1><br/>
+			
+		Current Price is: ${{ api.price.regularMarketPrice.raw }}<br/>
+		The Open Price is:  ${{ api.price.regularMarketOpen.raw }}<br/>
+		The Previous Close was: ${{ api.price.regularMarketPreviousClose.raw }}<br/>
+		The Market Cap is: ${{ market_cap }}<br/>	
+		The 52Wk High is: ${{api.summaryDetail.fiftyTwoWeekHigh.raw }}<br/>
+		The 52Wk Low is: ${{ api.summaryDetail.fiftyTwoWeekLow.raw  }}<br/>
+
+		
+		
+
+		
 
 	{% endif %}
 
